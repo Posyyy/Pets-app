@@ -1,10 +1,15 @@
 package com.example.petsapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
 
 class RegistrationActivity : AppCompatActivity() {
 
@@ -12,26 +17,52 @@ class RegistrationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
 
-        // Get references to the input fields and button
-        val emailField = findViewById<EditText>(R.id.editTextEmail)
-        val usernameField = findViewById<EditText>(R.id.editTextUsername)
-        val passwordField = findViewById<EditText>(R.id.editTextPassword)
-        val registerButton = findViewById<Button>(R.id.buttonRegister)
+        val emailEditText = findViewById<EditText>(R.id.emailEditText)
+        val usernameEditText = findViewById<EditText>(R.id.usernameEditText)
+        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
+        val registerButton = findViewById<Button>(R.id.registerButton)
 
-        // Set click listener for the Register button
         registerButton.setOnClickListener {
-            val email = emailField.text.toString().trim()
-            val username = usernameField.text.toString().trim()
-            val password = passwordField.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
+            val username = usernameEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
-            // Perform basic validation
             if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
-                // Handle registration logic here (e.g., send data to a server or save to a database)
-                Toast.makeText(this, "Registration Successful!", Toast.LENGTH_SHORT).show()
-                finish() // Close the RegistrationActivity
+                registerUser(email, username, password)
             }
+        }
+    }
+
+    private fun registerUser(email: String, username: String, password: String) {
+        val url = "https://www.jwuclasses.com/ugly/register"
+        val params = JSONObject()
+        params.put("email", email)
+        params.put("username", username)
+        params.put("password", password)
+
+        try {
+            val jsonObjectRequest = JsonObjectRequest(
+                Request.Method.POST, url, params,
+                { response ->
+                    val success = response.optInt("success", 0) == 1
+                    if (success) {
+                        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, LoginActivity::class.java))
+                        finish()
+                    } else {
+                        val errorMessage = response.optString("errormessage", "Registration failed")
+                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                },
+                { error ->
+                    Toast.makeText(this, "Network error: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            )
+            Volley.newRequestQueue(this).add(jsonObjectRequest)
+        } catch (e: Exception) {
+            Toast.makeText(this, "Unexpected error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 }

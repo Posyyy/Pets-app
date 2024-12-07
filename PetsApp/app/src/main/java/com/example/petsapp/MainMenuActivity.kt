@@ -11,6 +11,7 @@ class MainMenuActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main_menu)
 
         // Check login state
         val sharedPreferences: SharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
@@ -23,8 +24,6 @@ class MainMenuActivity : AppCompatActivity() {
             finish()
             return
         }
-
-        setContentView(R.layout.activity_main_menu)
 
         // Initialize buttons
         val addPetButton: Button = findViewById(R.id.addPetButton)
@@ -54,6 +53,7 @@ class MainMenuActivity : AppCompatActivity() {
             editor.clear()
             editor.apply()
 
+            Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()

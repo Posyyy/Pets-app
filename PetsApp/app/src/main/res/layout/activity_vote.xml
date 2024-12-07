@@ -1,35 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout4"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
     <!-- ImageView to display the pet's image -->
     <ImageView
         android:id="@+id/petImageView"
-        android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:scaleType="centerCrop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
         android:contentDescription="Pet Image"
-        android:layout_gravity="center_horizontal"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toTopOf="@+id/petNameTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/petNameTextView"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- TextView to display the pet's name -->
     <TextView
         android:id="@+id/petNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
         android:text="Pet Name"
+        android:textColor="#000000"
         android:textSize="18sp"
-        android:textColor="#000000" />
+        app:layout_constraintBottom_toTopOf="@+id/voteButton"
+        app:layout_constraintStart_toStartOf="@+id/voteButton"
+        app:layout_constraintTop_toBottomOf="@+id/petImageView" />
 
     <!-- Button for voting -->
     <Button
         android:id="@+id/voteButton"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Vote"
-        android:layout_marginTop="8dp" />
-</LinearLayout>
+        app:layout_constraintBottom_toTopOf="@+id/upvoteButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/upvoteButton"
+        app:layout_constraintTop_toBottomOf="@+id/petNameTextView" />
+
+    <Button
+        android:id="@+id/upvoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:text="Upvote"
+        app:layout_constraintBottom_toTopOf="@+id/downvoteButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/voteButton" />
+
+    <Button
+        android:id="@+id/downvoteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="223dp"
+        android:text="Downvote"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/upvoteButton"
+        app:layout_constraintTop_toBottomOf="@+id/upvoteButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

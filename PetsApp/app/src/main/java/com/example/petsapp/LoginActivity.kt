@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loginUser(username: String, password: String) {
-        val url = "https://your.api.endpoint/login" // Replace with your login API endpoint
+        val url = "https://www.jwuclasses.com/ugly/" // Replace with your login API endpoint
 
         // Create JSON payload
         val jsonBody = JSONObject()

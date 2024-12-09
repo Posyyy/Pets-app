@@ -2,9 +2,9 @@ package com.example.petsapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -14,57 +14,82 @@ import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
 
+    private lateinit var usernameEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var loginButton: Button
+    private lateinit var registerButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val usernameEditText = findViewById<EditText>(R.id.usernameEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val loginButton = findViewById<Button>(R.id.loginButton)
-        val registerLink = findViewById<TextView>(R.id.registerLink)
+        // Initialize Views
+        usernameEditText = findViewById(R.id.usernameEditText)
+        passwordEditText = findViewById(R.id.passwordEditText)
+        loginButton = findViewById(R.id.loginButton)
+        registerButton = findViewById(R.id.registerButton)
 
+        // Set up login button click listener
         loginButton.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
             val username = usernameEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
-            if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
             } else {
-                loginUser(email, username, password)
+                loginUser(username, password)
             }
         }
 
-        registerLink.setOnClickListener {
-            startActivity(Intent(this, RegistrationActivity::class.java))
+        // Set up register button click listener to navigate to RegistrationActivity
+        registerButton.setOnClickListener {
+            val intent = Intent(this, RegistrationActivity::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun loginUser(email: String, username: String, password: String) {
-        val url = "https://www.jwuclasses.com/ugly/login"
-        val params = JSONObject()
-        params.put("email", email)
-        params.put("username", username)
-        params.put("password", password)
+    private fun loginUser(username: String, password: String) {
+        val url = "https://your.api.endpoint/login" // Replace with your login API endpoint
 
-        val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.POST, url, params,
+        // Create JSON payload
+        val jsonBody = JSONObject()
+        jsonBody.put("username", username)
+        jsonBody.put("password", password)
+
+
+
+
+        // Create the request
+        val request = JsonObjectRequest(
+            Request.Method.POST, url, jsonBody,
             { response ->
-                val success = response.getInt("success") == 1
-                if (success) {
-                    Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainMenuActivity::class.java))
-                } else {
-                    val errorMessage = response.getString("errormessage")
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                try {
+                    val success = response.getBoolean("success")
+                    if (success) {
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        // Proceed to the main menu activity or the next screen
+                        val intent = Intent(this, MainMenuActivity::class.java)
+                        startActivity(intent)
+                        finish() // Finish the login activity
+                    } else {
+                        val message = response.getString("message")
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Login failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
-                Toast.makeText(this, "Network error: ${error.message}", Toast.LENGTH_SHORT).show()
+                error.printStackTrace()
+                Toast.makeText(this, "Network error. Please try again.", Toast.LENGTH_SHORT).show()
             }
         )
 
-        Volley.newRequestQueue(this).add(jsonObjectRequest)
+        // Disable caching on the request
+        request.setShouldCache(false)
+
+        // Add the request to the queue
+        Volley.newRequestQueue(this).add(request)
     }
 }

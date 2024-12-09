@@ -33,18 +33,21 @@ class MainMenuActivity : AppCompatActivity() {
 
         // Set button actions
         addPetButton.setOnClickListener {
-            Toast.makeText(this, "Add Pet Clicked", Toast.LENGTH_SHORT).show()
-            // Add navigation logic here
+            // Navigate to AddPetActivity
+            val intent = Intent(this, AddPetActivity::class.java)
+            startActivity(intent)
         }
 
         voteButton.setOnClickListener {
-            Toast.makeText(this, "Vote Clicked", Toast.LENGTH_SHORT).show()
-            // Add navigation logic here
+            // Navigate to VoteActivity
+            val intent = Intent(this, VoteActivity::class.java)
+            startActivity(intent)
         }
 
         leaderboardButton.setOnClickListener {
-            Toast.makeText(this, "Leaderboard Clicked", Toast.LENGTH_SHORT).show()
-            // Add navigation logic here
+            // Navigate to LeaderboardActivity
+            val intent = Intent(this, LeaderboardActivity::class.java)
+            startActivity(intent)
         }
 
         logoutButton.setOnClickListener {

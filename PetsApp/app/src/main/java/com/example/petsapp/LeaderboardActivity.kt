@@ -1,9 +1,9 @@
 package com.example.petsapp
 
 import android.os.Bundle
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class LeaderboardActivity : AppCompatActivity() {
 
@@ -11,18 +11,17 @@ class LeaderboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_leaderboard)
 
-        // Initialize UI components
-        val leaderboardListView: ListView = findViewById(R.id.leaderboardListView)
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Mock leaderboard data
-        val leaderboardData = listOf(
-            "1. Buddy - 100 votes",
-            "2. Luna - 80 votes",
-            "3. Charlie - 70 votes"
+        // Sample data
+        val characters = listOf(
+            Character("Fluffy", "https://example.com/fluffy.jpg"),
+            Character("Whiskers", "https://example.com/whiskers.jpg"),
+            Character("Spot", "https://example.com/spot.jpg")
         )
 
-        // Set up adapter
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, leaderboardData)
-        leaderboardListView.adapter = adapter
+        val adapter = CharacterAdapter(characters)
+        recyclerView.adapter = adapter
     }
 }

@@ -1,62 +1,65 @@
 package com.example.petsapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.ImageView
+import android.widget.RadioGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.bumptech.glide.Glide
 import org.json.JSONObject
 
 class VoteActivity : AppCompatActivity() {
 
-    private lateinit var petImageView: ImageView
     private lateinit var petNameTextView: TextView
-    private lateinit var upvoteButton: Button
-    private lateinit var downvoteButton: Button
-    private var petId: Int? = null
+    private lateinit var ratingGroup: RadioGroup
+    private lateinit var submitVoteButton: Button
+    private lateinit var fetchNewPetButton: Button
+    private lateinit var doneVotingButton: Button
+
+    private var currentPetId: Int = -1
+    private val sessionToken: String by lazy {
+        getSharedPreferences("user_prefs", MODE_PRIVATE).getString("session_token", "") ?: ""
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vote)
 
-        petImageView = findViewById(R.id.petImageView)
         petNameTextView = findViewById(R.id.petNameTextView)
-        upvoteButton = findViewById(R.id.upvoteButton)
-        downvoteButton = findViewById(R.id.downvoteButton)
+        ratingGroup = findViewById(R.id.ratingGroup)
+        submitVoteButton = findViewById(R.id.submitVoteButton)
+        fetchNewPetButton = findViewById(R.id.fetchNewPetButton)
+        doneVotingButton = findViewById(R.id.doneVotingButton)
 
-        fetchPet()
+        // Fetch initial pet
+        fetchNewPet()
 
-        upvoteButton.setOnClickListener {
-            petId?.let { voteOnPet(it, "upvote") }
-        }
+        // Submit Vote Button
+        submitVoteButton.setOnClickListener { submitVote() }
 
-        downvoteButton.setOnClickListener {
-            petId?.let { voteOnPet(it, "downvote") }
-        }
+        // Fetch New Pet Button
+        fetchNewPetButton.setOnClickListener { fetchNewPet() }
+
+        // Done Voting Button
+        doneVotingButton.setOnClickListener { finish() }
     }
 
-    private fun fetchPet() {
-        val url = "https://www.jwuclasses.com/ugly/get_pet"
+    private fun fetchNewPet() {
+        val url = "https://example.com/api/getPet" // Replace with your actual endpoint
 
-        val jsonObjectRequest = JsonObjectRequest(
+        val jsonRequest = JsonObjectRequest(
             Request.Method.GET, url, null,
             { response ->
-                val success = response.getBoolean("success")
-                if (success) {
-                    val pet = response.getJSONObject("pet")
-                    petId = pet.getInt("id")
-                    val petName = pet.getString("name")
-                    val petImageUrl = pet.getString("image_url")
-
+                try {
+                    currentPetId = response.getInt("pet_id")
+                    val petName = response.getString("pet_name")
                     petNameTextView.text = petName
-                    Glide.with(this).load(petImageUrl).into(petImageView)
-                } else {
-                    Toast.makeText(this, "Failed to load pet.", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Failed to fetch pet details", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
@@ -64,26 +67,43 @@ class VoteActivity : AppCompatActivity() {
             }
         )
 
-        Volley.newRequestQueue(this).add(jsonObjectRequest)
+        jsonRequest.setShouldCache(false)
+        Volley.newRequestQueue(this).add(jsonRequest)
     }
 
-    private fun voteOnPet(petId: Int, voteType: String) {
-        val url = "https://www.jwuclasses.com/ugly/vote"
-        val params = HashMap<String, Any>()
-        params["pet_id"] = petId
-        params["vote"] = voteType
-        val jsonObject = JSONObject(params as Map<*, *>)
+    private fun submitVote() {
+        val selectedRatingId = ratingGroup.checkedRadioButtonId
+        if (selectedRatingId == -1) {
+            Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.POST, url, jsonObject,
+        val rating = when (selectedRatingId) {
+            R.id.rating1 -> 1
+            R.id.rating2 -> 2
+            R.id.rating3 -> 3
+            R.id.rating4 -> 4
+            R.id.rating5 -> 5
+            else -> 0
+        }
+
+        val url = "https://example.com/api/voteOnPet" // Replace with your actual endpoint
+        val jsonBody = JSONObject()
+        jsonBody.put("token", sessionToken)
+        jsonBody.put("pet_id", currentPetId)
+        jsonBody.put("rating", rating)
+
+        val jsonRequest = JsonObjectRequest(
+            Request.Method.POST, url, jsonBody,
             { response ->
-                val success = response.getBoolean("success")
-                if (success) {
-                    Toast.makeText(this, "Vote submitted!", Toast.LENGTH_SHORT).show()
-                    fetchPet() // Fetch the next pet to vote on
-                } else {
-                    val errorMessage = response.getString("errormessage")
-                    Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                try {
+                    if (response.getBoolean("success")) {
+                        Toast.makeText(this, "Vote submitted successfully!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Failed to submit vote", Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Unexpected response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
@@ -91,6 +111,7 @@ class VoteActivity : AppCompatActivity() {
             }
         )
 
-        Volley.newRequestQueue(this).add(jsonObjectRequest)
+        jsonRequest.setShouldCache(false)
+        Volley.newRequestQueue(this).add(jsonRequest)
     }
 }

@@ -13,56 +13,70 @@ import org.json.JSONObject
 
 class RegistrationActivity : AppCompatActivity() {
 
+    private lateinit var usernameEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var registerButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
 
-        val emailEditText = findViewById<EditText>(R.id.emailEditText)
-        val usernameEditText = findViewById<EditText>(R.id.usernameEditText)
-        val passwordEditText = findViewById<EditText>(R.id.passwordEditText)
-        val registerButton = findViewById<Button>(R.id.registerButton)
+        // Initialize Views
+        usernameEditText = findViewById(R.id.usernameEditText)
+        passwordEditText = findViewById(R.id.passwordEditText)
+        registerButton = findViewById(R.id.registerButton)
 
+        // Set up register button click listener
         registerButton.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
             val username = usernameEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
-            if (email.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
             } else {
-                registerUser(email, username, password)
+                registerUser(username, password)
             }
         }
     }
 
-    private fun registerUser(email: String, username: String, password: String) {
-        val url = "https://www.jwuclasses.com/ugly/register"
-        val params = JSONObject()
-        params.put("email", email)
-        params.put("username", username)
-        params.put("password", password)
+    private fun registerUser(username: String, password: String) {
+        val url = "https://your.api.endpoint/register" // Replace with your registration API endpoint
 
-        try {
-            val jsonObjectRequest = JsonObjectRequest(
-                Request.Method.POST, url, params,
-                { response ->
-                    val success = response.optInt("success", 0) == 1
+        // Create JSON payload
+        val jsonBody = JSONObject()
+        jsonBody.put("username", username)
+        jsonBody.put("password", password)
+
+        // Create the request
+        val request = JsonObjectRequest(
+            Request.Method.POST, url, jsonBody,
+            { response ->
+                try {
+                    // Parse response
+                    val success = response.getBoolean("success")
                     if (success) {
-                        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this, LoginActivity::class.java))
+                        Toast.makeText(this, "Registration successful. Please log in.", Toast.LENGTH_SHORT).show()
+                        // Navigate back to the login screen
                         finish()
                     } else {
-                        val errorMessage = response.optString("errormessage", "Registration failed")
-                        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+                        val message = response.getString("message")
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
-                },
-                { error ->
-                    Toast.makeText(this, "Network error: ${error.message}", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
-            )
-            Volley.newRequestQueue(this).add(jsonObjectRequest)
-        } catch (e: Exception) {
-            Toast.makeText(this, "Unexpected error: ${e.message}", Toast.LENGTH_SHORT).show()
-        }
+            },
+            { error ->
+                error.printStackTrace()
+                Toast.makeText(this, "Network error. Please try again.", Toast.LENGTH_SHORT).show()
+            }
+        )
+
+        // Disable caching on the request
+        request.setShouldCache(false)
+
+        // Add the request to the queue
+        Volley.newRequestQueue(this).add(request)
     }
 }

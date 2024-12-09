@@ -71,7 +71,7 @@ class LoginActivity : AppCompatActivity() {
                         // Navigate to MainMenuActivity
                         val intent = Intent(this, MainMenuActivity::class.java)
                         startActivity(intent)
-                        finish() // Finish the login activity
+
                     } else {
                         val message = response.optString("errormessage", "Unknown error")
                         Log.d("LoginActivity", "Error message: $message") // Log the error message

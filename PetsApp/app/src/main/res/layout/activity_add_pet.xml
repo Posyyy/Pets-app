@@ -4,55 +4,71 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout2"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".AddPetActivity">
+
+    <!-- ImageView for displaying pet image -->
+    <ImageView
+        android:id="@+id/petImageView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="Pet Image"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_placeholder"
+        app:layout_constraintBottom_toTopOf="@+id/petNameField"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/petNameField"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- EditText for pet name -->
-
-    <!-- EditText for pet description -->
-
-    <!-- Button for uploading an image -->
-
-    <!-- Button for submitting the pet details -->
     <EditText
         android:id="@+id/petNameField"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
-        android:hint="Enter Pet Name"
+        android:layout_marginBottom="8dp"
+        android:hint="Enter pet name"
         android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/petDescriptionField"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/petDescriptionField"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/petImageView" />
 
+    <!-- EditText for pet description -->
     <EditText
         android:id="@+id/petDescriptionField"
-        android:layout_width="0dp"
+        android:layout_width="379dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
-        android:hint="Enter Pet Description"
+        android:layout_marginBottom="16dp"
+        android:hint="Enter pet description"
         android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/uploadImageButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/uploadImageButton"
         app:layout_constraintTop_toBottomOf="@+id/petNameField" />
 
+    <!-- Button for uploading image -->
     <Button
         android:id="@+id/uploadImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="92dp"
+        android:layout_marginBottom="16dp"
         android:text="Upload Image"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/submitPetButton"
+        app:layout_constraintEnd_toEndOf="@+id/petDescriptionField"
+        app:layout_constraintStart_toStartOf="@+id/petDescriptionField"
         app:layout_constraintTop_toBottomOf="@+id/petDescriptionField" />
 
+    <!-- Button for submitting pet information -->
     <Button
         android:id="@+id/submitPetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="112dp"
+        android:layout_marginStart="21dp"
+        android:layout_marginLeft="21dp"
+        android:layout_marginBottom="257dp"
         android:text="Submit"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="@+id/uploadImageButton"
         app:layout_constraintTop_toBottomOf="@+id/uploadImageButton" />
 

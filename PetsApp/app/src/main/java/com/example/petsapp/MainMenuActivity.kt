@@ -16,10 +16,7 @@ class MainMenuActivity : AppCompatActivity() {
         // Check login state
         val sharedPreferences: SharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
-        if (!isLoggedIn){
-            finish()
-            return
-        }
+
 
         // Initialize buttons
         val addPetButton: Button = findViewById(R.id.addPetButton)

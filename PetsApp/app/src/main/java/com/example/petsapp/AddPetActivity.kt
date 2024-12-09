@@ -1,8 +1,11 @@
 package com.example.petsapp
 
+import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
@@ -10,11 +13,15 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import okhttp3.*
 import org.json.JSONObject
+import java.io.File
+import java.io.IOException
 
 class AddPetActivity : AppCompatActivity() {
 
     private lateinit var requestQueue: RequestQueue
+    private lateinit var petImageView: ImageView // ImageView for displaying the chosen image
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,13 +33,15 @@ class AddPetActivity : AppCompatActivity() {
         // Initialize UI components
         val petNameField: EditText = findViewById(R.id.petNameField)
         val petDescriptionField: EditText = findViewById(R.id.petDescriptionField)
+        petImageView = findViewById(R.id.petImageView) // Initialize ImageView
         val uploadImageButton: Button = findViewById(R.id.uploadImageButton)
         val submitPetButton: Button = findViewById(R.id.submitPetButton)
 
-        // Set up the upload button click listener (if you have an image uploading feature)
+        // Set up the upload button click listener
         uploadImageButton.setOnClickListener {
             Toast.makeText(this, "Upload Image button clicked", Toast.LENGTH_SHORT).show()
-            // Add your logic for image upload here
+            // Add your image picking logic here (e.g., use an Intent to open the gallery)
+            pickImageFromGallery()
         }
 
         // Set up the submit button click listener
@@ -45,6 +54,20 @@ class AddPetActivity : AppCompatActivity() {
             } else {
                 submitPetInfo(petName, petDescription)
             }
+        }
+    }
+
+    private fun pickImageFromGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(intent, IMAGE_PICK_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == IMAGE_PICK_CODE && resultCode == RESULT_OK && data != null) {
+            val imageUri: Uri = data.data!!
+            petImageView.setImageURI(imageUri)
+            // You can add more logic here to handle image processing or storage
         }
     }
 
@@ -91,5 +114,9 @@ class AddPetActivity : AppCompatActivity() {
         super.onDestroy()
         // Cancel any pending requests when the activity is destroyed
         requestQueue.cancelAll(this)
+    }
+
+    companion object {
+        private const val IMAGE_PICK_CODE = 1000
     }
 }

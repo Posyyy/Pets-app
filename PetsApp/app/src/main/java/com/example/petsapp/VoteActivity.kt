@@ -49,7 +49,7 @@ class VoteActivity : AppCompatActivity() {
     }
 
     private fun fetchNewPet() {
-        val url = "https://example.com/api/getPet" // Replace with your actual endpoint
+        val url = "https://www.jwuclasses.com/ugly/getPet" // Replace with your actual endpoint
 
         val jsonRequest = JsonObjectRequest(
             Request.Method.GET, url, null,

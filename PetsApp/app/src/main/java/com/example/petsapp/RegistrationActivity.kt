@@ -40,7 +40,7 @@ class RegistrationActivity : AppCompatActivity() {
     }
 
     private fun registerUser(username: String, password: String) {
-        val url = "https://your.api.endpoint/register" // Replace with your registration API endpoint
+        val url = "https://www.jwuclasses.com/ugly/register" // Replace with your registration API endpoint
 
         // Create JSON payload
         val jsonBody = JSONObject()

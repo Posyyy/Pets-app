@@ -1,69 +1,61 @@
-import com.android.volley.*
+import com.android.volley.NetworkResponse
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.HttpHeaderParser
 import java.io.ByteArrayOutputStream
-import java.io.DataOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.IOException
 
 class MultipartRequest(
+    method: Int,
     url: String,
-    private val headers: Map<String, String>,
+    private val listener: Response.Listener<String>,
+    private val errorListener: Response.ErrorListener,
     private val params: Map<String, String>,
-    private val filePart: File,
-    private val responseListener: Response.Listener<String>,
-    private val errorListener: Response.ErrorListener
-) : Request<String>(Method.POST, url, errorListener) {
-
-    private val boundary = "----VolleyBoundary${System.currentTimeMillis()}"
-
-    override fun getHeaders(): MutableMap<String, String> {
-        return headers.toMutableMap()
-    }
+    private val fileParam: Pair<String, File>? = null // For image file
+) : Request<String>(method, url, errorListener) {
 
     override fun getBodyContentType(): String {
-        return "multipart/form-data; boundary=$boundary"
+        return "multipart/form-data; boundary=boundary"
     }
 
     override fun getBody(): ByteArray {
-        val bos = ByteArrayOutputStream()
-        val dos = DataOutputStream(bos)
+        val boundary = "--boundary"
+        val body = StringBuilder()
 
-        try {
-            // Add text parameters
-            for ((key, value) in params) {
-                dos.writeBytes("--$boundary\r\n")
-                dos.writeBytes("Content-Disposition: form-data; name=\"$key\"\r\n\r\n")
-                dos.writeBytes("$value\r\n")
-            }
-
-            // Add file part
-            dos.writeBytes("--$boundary\r\n")
-            dos.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"${filePart.name}\"\r\n")
-            dos.writeBytes("Content-Type: application/octet-stream\r\n\r\n")
-            val fileInputStream = FileInputStream(filePart)
-            val buffer = ByteArray(1024)
-            var bytesRead: Int
-            while (fileInputStream.read(buffer).also { bytesRead = it } != -1) {
-                dos.write(buffer, 0, bytesRead)
-            }
-            fileInputStream.close()
-
-            dos.writeBytes("\r\n")
-            dos.writeBytes("--$boundary--\r\n")
-        } catch (e: IOException) {
-            e.printStackTrace()
+        // Add form fields
+        for ((key, value) in params) {
+            body.append(boundary).append("\r\n")
+            body.append("Content-Disposition: form-data; name=\"$key\"\r\n\r\n")
+            body.append(value).append("\r\n")
         }
 
-        return bos.toByteArray()
+        // Add the image file if provided
+        fileParam?.let {
+            val (paramName, file) = it
+            val fileBytes = file.readBytes()
+            body.append(boundary).append("\r\n")
+            body.append("Content-Disposition: form-data; name=\"$paramName\"; filename=\"${file.name}\"\r\n")
+            body.append("Content-Type: image/jpeg\r\n\r\n")
+            body.append(String(fileBytes)).append("\r\n")
+        }
+
+        body.append(boundary).append("--\r\n")
+        return body.toString().toByteArray(Charsets.UTF_8)
     }
 
     override fun parseNetworkResponse(response: NetworkResponse?): Response<String> {
         return try {
-            val result = String(response?.data ?: byteArrayOf())
-            Response.success(result, HttpHeaderParser.parseCacheHeaders(response))
+            val responseString = String(response?.data ?: byteArrayOf(), charset(HttpHeaderParser.parseCharset(response?.headers)))
+            Response.success(responseString, HttpHeaderParser.parseCacheHeaders(response))
         } catch (e: Exception) {
-            Response.error(ParseError(e))
+            Response.error(VolleyError(e))
         }
+    }
+
+    override fun deliverResponse(response: String) {
+        listener.onResponse(response)
     }
 }

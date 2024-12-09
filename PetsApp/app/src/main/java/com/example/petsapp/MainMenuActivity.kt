@@ -18,6 +18,7 @@ class MainMenuActivity : AppCompatActivity() {
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
         if (!isLoggedIn){
             finish()
+            return
         }
 
         // Initialize buttons

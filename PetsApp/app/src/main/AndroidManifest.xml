@@ -38,7 +38,6 @@
         <activity android:name=".VoteActivity" android:exported="false" />
         <activity android:name=".LeaderboardActivity" android:exported="false" />
         <activity android:name=".LoginActivity" android:exported="false" />
-        <activity android:name=".MainActivity" android:exported="true" />
 
     </application>
 

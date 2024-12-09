@@ -13,58 +13,64 @@ import org.json.JSONObject
 
 class RegistrationActivity : AppCompatActivity() {
 
-    private lateinit var usernameEditText: EditText
+    private lateinit var nameEditText: EditText
+    private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var registerButton: Button
+    private lateinit var loginButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration)
 
         // Initialize Views
-        usernameEditText = findViewById(R.id.usernameEditText)
+        emailEditText = findViewById(R.id.emailEditText) // Updated ID
         passwordEditText = findViewById(R.id.passwordEditText)
         registerButton = findViewById(R.id.registerButton)
+        loginButton = findViewById(R.id.loginButton)
 
         // Set up register button click listener
         registerButton.setOnClickListener {
-            val username = usernameEditText.text.toString().trim()
+            val name = nameEditText.text.toString().trim()
+            val email = emailEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please enter username and password", Toast.LENGTH_SHORT).show()
+            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             } else {
-                registerUser(username, password)
+                registerUser(name, email, password)
             }
+        }
+
+        // Set up login button click listener to navigate back to LoginActivity
+        loginButton.setOnClickListener {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
         }
     }
 
-    private fun registerUser(username: String, password: String) {
+    private fun registerUser(name: String, email: String, password: String) {
         val url = "https://www.jwuclasses.com/ugly/register" // Replace with your registration API endpoint
 
         // Create JSON payload
         val jsonBody = JSONObject()
-        jsonBody.put("username", username)
+        jsonBody.put("email", email) // Updated key to "email"
         jsonBody.put("password", password)
 
         // Create the request
         val request = JsonObjectRequest(
             Request.Method.POST, url, jsonBody,
             { response ->
-                try {
-                    // Parse response
-                    val success = response.getBoolean("success")
-                    if (success) {
-                        Toast.makeText(this, "Registration successful. Please log in.", Toast.LENGTH_SHORT).show()
-                        // Navigate back to the login screen
-                        finish()
-                    } else {
-                        val message = response.getString("message")
-                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Registration failed. Please try again.", Toast.LENGTH_SHORT).show()
+                val success = response.getString("success") // Expects a string "true" or "false"
+                if (success == "true") {
+                    Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+                    // Navigate to LoginActivity or another screen
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    finish() // Finish the registration activity
+                } else {
+                    val message = response.getString("message")
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->

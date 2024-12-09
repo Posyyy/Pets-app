@@ -2,6 +2,7 @@ package com.example.petsapp
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -60,27 +61,43 @@ class LoginActivity : AppCompatActivity() {
         val request = JsonObjectRequest(
             Request.Method.POST, url, jsonBody,
             { response ->
+                Log.d("LoginActivity", "Response: $response")
                 try {
-                    // Get the "success" field as a string
-                    val success = response.getString("success")
-                    if (success == "true") {
+                    // Check success and retrieve message using the correct key
+                    val success = response.optInt("success", -1) // Default to -1 if not found
+                    if (success == 1) {
+                        Log.d("LoginActivity", "Login successful")
                         Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                        // Proceed to the main menu activity or the next screen
+                        // Navigate to MainMenuActivity
                         val intent = Intent(this, MainMenuActivity::class.java)
                         startActivity(intent)
                         finish() // Finish the login activity
                     } else {
-                        val message = response.optString("message", "An error occurred")
+                        val message = response.optString("errormessage", "Unknown error")
+                        Log.d("LoginActivity", "Error message: $message") // Log the error message
                         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: JSONException) {
-                    e.printStackTrace()
-                    Toast.makeText(this, "Error parsing server response", Toast.LENGTH_SHORT).show()
+                    Log.e("LoginActivity", "Error parsing response: ${e.localizedMessage}")
+                    Toast.makeText(this, "Error parsing server response. Please try again.", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->
-                error.printStackTrace()
-                Toast.makeText(this, "Network error. Please try again.", Toast.LENGTH_SHORT).show()
+                // Log detailed error information
+                Log.e("LoginActivity", "Network error: ${error.localizedMessage}")
+                if (error.networkResponse != null) {
+                    val statusCode = error.networkResponse.statusCode
+                    Log.e("LoginActivity", "HTTP Status Code: $statusCode")
+                    if (statusCode == 401) {
+                        Toast.makeText(this, "Unauthorized access. Please check your email and password.", Toast.LENGTH_SHORT).show()
+                    } else if (statusCode == 404) {
+                        Toast.makeText(this, "Server not found. Please check your URL.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Network error. Please try again later.", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Network error. Please try again.", Toast.LENGTH_SHORT).show()
+                }
             }
         )
 

@@ -16,6 +16,9 @@ class MainMenuActivity : AppCompatActivity() {
         // Check login state
         val sharedPreferences: SharedPreferences = getSharedPreferences("UserSession", MODE_PRIVATE)
         val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn", false)
+        if (!isLoggedIn){
+            finish()
+        }
 
         // Initialize buttons
         val addPetButton: Button = findViewById(R.id.addPetButton)
@@ -48,7 +51,6 @@ class MainMenuActivity : AppCompatActivity() {
             editor.clear()
             editor.apply()
 
-            Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show()
             finish()
         }
     }

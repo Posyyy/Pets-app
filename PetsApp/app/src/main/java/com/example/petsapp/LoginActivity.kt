@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import org.json.JSONException
 import org.json.JSONObject
 
 class LoginActivity : AppCompatActivity() {
@@ -23,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         // Initialize Views
-        emailEditText = findViewById(R.id.emailEditText) // Updated ID
+        emailEditText = findViewById(R.id.emailEditText)
         passwordEditText = findViewById(R.id.passwordEditText)
         loginButton = findViewById(R.id.loginButton)
         registerButton = findViewById(R.id.registerButton)
@@ -52,23 +53,29 @@ class LoginActivity : AppCompatActivity() {
 
         // Create JSON payload
         val jsonBody = JSONObject()
-        jsonBody.put("email", email) // Updated key to "email"
+        jsonBody.put("email", email)
         jsonBody.put("password", password)
 
         // Create the request
         val request = JsonObjectRequest(
             Request.Method.POST, url, jsonBody,
             { response ->
-                val success = response.getString("success") // Expects a string "true" or "false"
-                if (success == "true") {
-                    Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
-                    // Proceed to the main menu activity or the next screen
-                    val intent = Intent(this, MainMenuActivity::class.java)
-                    startActivity(intent)
-                    finish() // Finish the login activity
-                } else {
-                    val message = response.getString("message")
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                try {
+                    // Get the "success" field as a string
+                    val success = response.getString("success")
+                    if (success == "true") {
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        // Proceed to the main menu activity or the next screen
+                        val intent = Intent(this, MainMenuActivity::class.java)
+                        startActivity(intent)
+                        finish() // Finish the login activity
+                    } else {
+                        val message = response.optString("message", "An error occurred")
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error parsing server response", Toast.LENGTH_SHORT).show()
                 }
             },
             { error ->

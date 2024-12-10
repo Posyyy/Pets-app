@@ -7,18 +7,19 @@
     tools:context=".LeaderboardActivity">
 
     <!-- Title for the Leaderboard -->
+
+    <!-- RecyclerView for displaying leaderboard items -->
     <TextView
         android:id="@+id/leaderboardTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="4dp"
         android:text="Leaderboard"
         android:textSize="24sp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- RecyclerView for displaying leaderboard items -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/leaderboardRecyclerView"
         android:layout_width="match_parent"

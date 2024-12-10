@@ -1,6 +1,5 @@
 package com.example.petsapp
 
-import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.RadioGroup
@@ -19,6 +18,7 @@ class VoteActivity : AppCompatActivity() {
     private lateinit var submitVoteButton: Button
     private lateinit var fetchNewPetButton: Button
     private lateinit var doneVotingButton: Button
+    private lateinit var goBackButton: Button
 
     private var currentPetId: Int = -1
     private val sessionToken: String by lazy {
@@ -34,6 +34,7 @@ class VoteActivity : AppCompatActivity() {
         submitVoteButton = findViewById(R.id.submitVoteButton)
         fetchNewPetButton = findViewById(R.id.fetchNewPetButton)
         doneVotingButton = findViewById(R.id.doneVotingButton)
+        goBackButton = findViewById(R.id.goBackButton)
 
         // Fetch initial pet
         fetchNewPet()
@@ -46,6 +47,9 @@ class VoteActivity : AppCompatActivity() {
 
         // Done Voting Button
         doneVotingButton.setOnClickListener { finish() }
+
+        // Go Back Button
+        goBackButton.setOnClickListener { onBackPressed() }
     }
 
     private fun fetchNewPet() {

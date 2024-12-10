@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
-class CharacterAdapter(private val characterList: List<Character>) : RecyclerView.Adapter<CharacterAdapter.CharacterViewHolder>() {
+class CharacterAdapter(private var characterList: List<Character>) : RecyclerView.Adapter<CharacterAdapter.CharacterViewHolder>() {
 
     class CharacterViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val characterImage: ImageView = itemView.findViewById(R.id.characterImage)
@@ -23,13 +23,21 @@ class CharacterAdapter(private val characterList: List<Character>) : RecyclerVie
     override fun onBindViewHolder(holder: CharacterViewHolder, position: Int) {
         val character = characterList[position]
         holder.characterName.text = character.name
-        // Load image using an image loading library like Glide or Picasso
+        // Load image using Glide
         Glide.with(holder.characterImage.context)
             .load(character.image)
+            .placeholder(R.drawable.ic_placeholder) // Placeholder image
+            .error(R.drawable.ic_error) // Error image
             .into(holder.characterImage)
     }
 
     override fun getItemCount(): Int {
         return characterList.size
+    }
+
+    // Add this method to update the adapter's data dynamically
+    fun updateData(newCharacterList: List<Character>) {
+        characterList = newCharacterList
+        notifyDataSetChanged()
     }
 }
